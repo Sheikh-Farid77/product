@@ -1,4 +1,6 @@
 import Navbar from "./components/Navbar"
+import ProductList from "./components/ProductList"
+import ProductProvider from "./provider/ProductProvider"
 
 
 function App() {
@@ -6,7 +8,10 @@ function App() {
 
   return (
     <>
-    <Navbar />
+      <ProductProvider>
+        <Navbar />
+        <ProductList />
+      </ProductProvider>
 
     </>
   )
