@@ -4,8 +4,8 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 
 // get products by axios
-const retrieveProducts = async () => {
-    const response = await axios.get('https://dummyjson.com/products')
+const retrieveProducts = async ({queryKey}) => {
+    const response = await axios.get(`https://dummyjson.com/${queryKey[0]}`)
     return response.data;
 }
 
@@ -20,7 +20,6 @@ export default function ProductProvider({ children }) {
         queryFn: retrieveProducts,
         retry: false
     })
-console.log(data)
 
     const state = {
         products: data?.products,

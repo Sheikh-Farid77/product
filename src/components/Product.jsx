@@ -1,11 +1,18 @@
+import { useState } from "react";
+import Portal from "./Portal";
+import DetailsModal from "./DetailsModal";
+
 export default function Product({ product }) {
 
-    return (
-        <div className="card bg-base-100 shadow-sm">
+    const [isOpen, setIsOpen] = useState(false)
+
+    return ( 
+        <>
+        <div onClick={() => setIsOpen(true)} className="card bg-base-100 shadow-sm cursor-pointer">
             <figure>
                 <img
                     src={product.thumbnail}
-                    alt="Shoes" />
+                    alt={product.title} />
             </figure>
             <div className="card-body">
                 <h2 className="card-title">{product.title}</h2>
@@ -17,5 +24,13 @@ export default function Product({ product }) {
             </div>
             <button className="btn btn-error text-lg my-3">Delete</button>
         </div>
+
+        {
+            isOpen && 
+            <Portal>
+                <DetailsModal onClose={() => setIsOpen(false)} product={product}/>
+            </Portal>
+        }
+        </>
     );
 }
