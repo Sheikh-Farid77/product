@@ -6,6 +6,7 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query";
+import useDebounce from "../hook/useDebounce";
 
 // get products by axios
 const retrieveProducts = async ({ queryKey }) => {
@@ -16,6 +17,8 @@ const retrieveProducts = async ({ queryKey }) => {
 
 export default function ProductProvider({ children }) {
     const [skip, setSkip] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('')
+    console.log(searchQuery)
     const queryClient = useQueryClient();
 
     const {
@@ -28,7 +31,7 @@ export default function ProductProvider({ children }) {
         queryFn: retrieveProducts,
         retry: false,
     });
- 
+
 
     // delete product
     const mutation = useMutation({
@@ -39,13 +42,29 @@ export default function ProductProvider({ children }) {
             queryClient.invalidateQueries({ queryKey: ['products'] });
         },
     });
-
+// pagination
     const handleNext = () => {
         setSkip(prev => prev + 20)
     }
     const handlePrev = () => {
         setSkip(prev => prev - 20)
     }
+
+    // search query
+
+    const handleGetSearchQuery = (e) =>{
+        setSearchQuery(e.target.value)
+    }
+
+    const debounceValue = useDebounce(searchQuery, 500)
+     const handleSearch = (product) => {
+    if (searchQuery !== "") {
+      return product?.title
+        .toLowerCase()
+        .includes(debounceValue.trim().toLowerCase());
+    }
+    return true;
+  };
 
     const state = {
         products: data?.products,
@@ -56,7 +75,9 @@ export default function ProductProvider({ children }) {
         handleNext,
         handlePrev,
         skip,
-        item: data?.total
+        item: data?.total,
+        handleGetSearchQuery,
+        handleSearch
     };
 
     return (

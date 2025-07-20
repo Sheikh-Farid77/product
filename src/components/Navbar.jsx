@@ -1,6 +1,9 @@
+import { useProduct } from "../provider/ProductProvider";
 import CartIcon from "./svg/CartIcon";
 
 export default function Navbar() {
+    const {handleGetSearchQuery} = useProduct();
+    
     return (
         <div className="container mx-auto py-3 px-4">
             <ul className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
@@ -13,6 +16,7 @@ export default function Navbar() {
                 <li className="w-full md:w-auto">
                     <input
                         className="w-full md:w-96 h-10 rounded-md px-4 text-sm border focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        onChange={handleGetSearchQuery}
                         placeholder="Search your product"
                         type="text"
                         aria-label="Search products"
