@@ -1,31 +1,64 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ProductContext } from "../context";
 import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import {
+    useMutation,
+    useQuery,
+    useQueryClient,
+} from "@tanstack/react-query";
 
 // get products by axios
-const retrieveProducts = async ({queryKey}) => {
-    const response = await axios.get(`https://dummyjson.com/${queryKey[0]}`)
+const retrieveProducts = async ({ queryKey }) => {
+    const [_key, { skip }] = queryKey;
+    const response = await axios.get(`https://dummyjson.com/${_key}?limit=20&skip=${skip}`);
     return response.data;
-}
+};
 
 export default function ProductProvider({ children }) {
+    const [skip, setSkip] = useState(0);
+    const queryClient = useQueryClient();
 
     const {
         data,
         error,
-        isLoading
+        isLoading,
+        isError,
     } = useQuery({
-        queryKey: ["products"],
+        queryKey: ["products", { skip }],
         queryFn: retrieveProducts,
-        retry: false
-    })
+        retry: false,
+    });
+ 
+
+    // delete product
+    const mutation = useMutation({
+        mutationFn: (id) => {
+            return axios.delete(`https://dummyjson.com/products/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+    });
+
+    const handleNext = () => {
+        setSkip(prev => prev + 20)
+    }
+    const handlePrev = () => {
+        setSkip(prev => prev - 20)
+    }
 
     const state = {
         products: data?.products,
         error,
-        isLoading
-    }
+        isLoading,
+        isError,
+        mutation,
+        handleNext,
+        handlePrev,
+        skip,
+        item: data?.total
+    };
+
     return (
         <ProductContext.Provider value={state}>
             {children}
@@ -35,6 +68,5 @@ export default function ProductProvider({ children }) {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useProduct() {
-    return useContext(ProductContext)
+    return useContext(ProductContext);
 }
-
